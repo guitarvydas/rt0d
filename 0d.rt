@@ -1,0 +1,81 @@
+(scope zerod
+
+  (def-type PortKind String)
+  (def-type Name String)
+  (def-type Handler action ((action (Output-Message))))
+       
+  (def-kind FIFO
+    enqueue : action ()
+    dequeue : attribute -> (Message)
+    push : action (v)
+    clear: action ()
+    empty? : predicate ()
+    as-list : attribute -> (LIST)
+              
+  (def-kind Message
+    port : attribute -> (PortKind)
+    datum : attribute -> (*))
+
+  (def-derived-kind Input-Message (Message) export)
+  (def-derived-kind Output-Message (Message) export)
+
+  (def-kind Sender [Eh PortKind]
+    component : attribute -> (Eh)
+    port : attribute -> (PortKind))
+
+  (def-kind Receiver [Eh PortKind]
+    component : attribute -> (Eh)
+    port : attribute -> (PortKind))
+
+  // Connection is a single connection between a sender and a receiver.
+  // A net of connections may contain many single Connections.  All connections
+  //  on a net must be acted upon atomically as a block.
+  (def-kind Connection [Sender Receiver]
+    sender : attribute -> (Sender)
+    receiver : attribute -> (Receiver)
+    deposit : action (Message))
+
+  (def-derived-kind export Up (Connection) export)
+  (def-derived-kind export Down (Connection) export)
+  (def-derived-kind export Across (Connection) export)
+  (def-derived-kind export Through (Connection) export)
+
+  (def-kind Eh
+    name : attribute -> (String) export
+    handle : action (Input-Message) export
+    inq : attribute -> (FIFO)
+    outq : attribute -> (FIFO)
+
+    enqueue-input : action (Input-Message) export
+    dequeue-input : value (Input-Message) export
+    empty-input? : predicate export
+
+    output-queue : attribute -> (FIFO) export
+    enqueue-output : action (Output-Message) export
+    dequeue-output : attribute -> (Output-Message) export
+    empty-output? : predicate () export
+    clear-outputs : action ()
+
+    send : action (Port Datum) export
+    outputs-as-list : attribute -> (LIST) export
+
+    map-outputs : Handler export
+
+  (def-kind Leaf [Name Handler]
+    eh = (Eh/$ Name)
+    handle : Handler
+    $punt : eh)
+
+  (def-kind Container [eh]
+    handle : &ContainerHandler
+    $punt : eh)
+
+
+  (def-action ContainerHandler [self msg]
+     self/route-downwards (msg.port msg.datum)
+)
+
+    
+eh
+leaf
+container
