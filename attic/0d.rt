@@ -1,0 +1,59 @@
+---
+
+(def-predicate container-busy? (self)
+     (binary-choice (any (? self.children.busy?))
+	 True
+       False))
+
+(def-predicate leaf-busy? (self)
+     False)
+
+(def-action container-step (self)
+  (binary-choice (any (? self.children.busy?))
+       (  for-every $c=(v self.children) (@step $c) )
+       (
+	$m = (v self.inputq.dequeue)
+	for-every $c=(v self.connections) (@deliver $c self $m)
+       )  
+
+---
+   
+def-predicate container-busy? (self):
+   binary-choice (any (self.children.busy-p)):
+       True
+   else:
+       False
+
+def-predicate leaf-busy? (self):
+   False
+
+def-action container-step (self):
+   binary-choice (any $c=self.children (? busy? $c)):
+       for all $c=self.children:
+           (A $c.step)
+       else:
+           $m = (V self.inputq.dequeue)
+           for all $c = self.connections:
+               (A deliver $c $m)
+
+---
+   
+# pseudo code
+
+def containerBusyP (self):
+    if any self.children.busyP():
+        return true
+    else:
+        return False
+
+def leafBusyP (self):
+    return False
+
+def containerStep (self):
+    if any self.children.busyP():
+        step each self.children
+    else if not self.inputq.empty():
+        m = self.inputq.dequeue()
+        for all c in self.connections:
+            c.deliver (self, m)
+        

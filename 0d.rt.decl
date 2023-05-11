@@ -1,0 +1,9 @@
+[deliver message $ using connection $]
+
+def-action container-step:
+   [any child is busy?]
+   [any child has inputs pending]
+   $c
+   $m
+   for-all:
+      $cn
