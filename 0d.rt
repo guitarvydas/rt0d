@@ -1,98 +1,148 @@
-def-synonym Port-Kind ~ String
-def-synonym Port ~ String
-def-synonym Name ~ String
-def-synonym Step ~ Action
-def-synonym Datum ~ *
+(defstruct FIFO
+  (enqueue (Action ()))
+  (dequeue (Attribute (Message)))
+  (push (Action (Message)))
+  (clear (Action ()))
+  (empty? (Predicate ())))
+(defun FIFO/new () (new FIFO))
 
-def-proto FIFO:
-   enqueue : Action
-   dequeue : Attribute -> (Message)
-   push : Action (Message)
-   clear : Action
-   empty? : Predicate
-   
-def-proto Message:
-   port : Port-Kind
-   datum : *
+(defstruct Message
+  (port (Attribute (String)) undefined)
+  (datum (Attribute (*)) undefined))
+(defun Message/new (p d) 
+  (mutate (port $) p) 
+  (mutate (datum $) d))
 
-def-kind Input-Message ~ Message:
-def-kind Output-Message ~ Message:
+(defstruct Input-Message
+  (port (Attribute (String)) #undefined)
+  (datum (Attribute (*)) #undefined))
+(defun Input-Message/new (p d) (Message/new p d))
 
-def-proto Sender [C P]:
-   component : Component = C
-   port : Port-Kind = P
+(defstruct Output-Message
+  (port (Attribute (String)) #undefined)
+  (datum (Attribute (*)) #undefined))
+(defun Output-Message/new (p d) (Message/new p d))
 
-def-proto Receiver [C P]:
-   component : Component = C
-   port : Port-Kind = P
+(defstruct Sender
+  (component (Component) #undefined)
+  (port (String) #undefined))
+(defun Sender/new (C P) 
+  (mutate (component $) C)
+  (mutate (port $) P))
 
-def-proto Connection [S R]:
-   sender : Sender = S
-   receiver : Receiver = R
-   deliver : Action (Output-Message)
+(defstruct Receiver
+  (component (Component) #undefined)
+  (port (String) #undefined))
+(defun Receiver/new (C P) 
+  (mutate (component $) C)
+  (mutate (port $) P))
 
+(defstruct Connection
+  (sender (Sender) #undefined)
+  (receiver (Receiver) #undefined)
+  (deliver (Action () (Output-Message) #undefined))
+(defun Connection/new (S R)
+  (mutate (sender $) S)
+  (mutate (receiver $) S))
 
-def-kind Up [S R] ~ Connection [S R]:
-   deliver :: Action (Output-Message) = &deliver-up
-def-kind Down [S R] ~ Connection [S R]:
-   deliver :: Action (Output-Message) = &deliver-down
-def-kind Across [S R] ~ Connection [S R]:
-   deliver :: Action (Output-Message) = &deliver-across
-def-kind Through [S R] ~ Connection [S R]:
-   deliver :: Action (Output-Message) = deliver-through
-   
-def-proto Eh [N]:
-   name : Attribute -> String = N
-   step : Action
-   busy? : Predicate
-   inq : FIFO
-   outq : FIFO
-   enqueue-input : Action (Input-Message)
-   dequeue-input : Procedure -> Input-Message
-   empty-input? : Predicate
-   output-queue : Attribute -> FIFO
-   enqueue-output : Action (Output-Message)
-   dequeue-output : Procdure -> Output-Message
-   empty-output? : Predicate
-   clear-outputs : Action
-   send : Action (Port Datum)
-   outputs-as-list : Attribute -> List[Output-Message]
-   map-outputs : Action (Action (Output-Message))
+(defstruct Up
+  (sender (Sender) #undefined)
+  (receiver (Receiver) #undefined)
+  (deliver (Action () (Output-Message) #undefined))
+(defun Up/new (S R) 
+  (mutate $ (Connection/new S R))
+  (mutate (deliver $) &deliver-up))
+(defstruct Down
+  (sender (Sender) #undefined)
+  (receiver (Receiver) #undefined)
+  (deliver (Action () (Output-Message) #undefined))
+(defun Down/new (S R) 
+  (mutate $ (Connection/new S R))
+  (mutate (deliver $) &deliver-down))
+(defstruct Across
+  (sender (Sender) #undefined)
+  (receiver (Receiver) #undefined)
+  (deliver (Action () (Output-Message) #undefined))
+(defun Across/new (S R) 
+  (mutate $ (Connection/new S R))
+  (mutate (deliver $) &deliver-across))
+(defstruct Through
+  (sender (Sender) #undefined)
+  (receiver (Receiver) #undefined)
+  (deliver (Action () (Output-Message) #undefined))
+(defun Through/new (S R) 
+  (mutate $ (Connection/new S R))
+  (mutate (deliver $) &deliver-through))
 
-def-kind Leaf [N S]:
-   name :: Attribute -> String = N
-   step :: Action = S
-   busy? :: Predicate = False
-def-kind Container [N]:
-   name :: Attribute -> String = N
-   step :: Action = &container-step
-   busy? :: Predicate = &container-busy
+(defstruct Eh
+  (name (String) (proc ($) (name $)))
+  (step (proc () ()))
+  (busy? (Boolean)) (proc ($) (busy? $))
+  (inq (FIFO) (FIFO/new))
+  (outq (FIFO) (FIFO/new))
+  (enqueue-input (Action (Input-Message)))
+  (dequeue-input (Procedure () (Input-Message)))
+  (empty-input? (Predicate))
+  (output-queue (Attribute (FIFO)) #undefined)
+  (enqueue-output (Action (Output-Message)))
+  (dequeue-output (Procedure () (Output-Message)))
+  (empty-output? (Predicate))
+  (clear-outputs (Action))
+  (send (Action (String *)))
+  (outputs-as-list (Attribute (List (Output-Message))))
+  (map-outputs (Action (Action (Output-Message)))))
+(defun Eh/new (N)
+  (mutate (name $) N)
+  (mutate (inq $) (FIFO/new))
+  (mutate (outq $) (FIFO/new)))
 
-def-kind Component = Leaf | Container
+(defstruct Leaf (N S)
+  (name (Attribute (String)) #undefined)
+  (step (Action) #undefined)
+  (busy? (Predicate) #undefined))
+(defun Leaf/new (N S)
+  (mutate $ (Eh/new))
+  (mutate (name $) N)
+  (mutate (step $) S)
+  (mutate (busy? $) #false))
 
-def-predicate container-busy?:
-   true-false-choice [any child is busy?] | [any child has inputs pending]:
-       True: True
-       False: False
+(defstruct Container (N S)
+  (name (Attribute (String)) #undefined)
+  (step (Action) #undefined)
+  (busy? (Predicate) #undefined))
+(defun Container/new (N S)
+  (mutate $ (Eh/new))
+  (mutate (name $) N)
+  (mutate (step $) &container-step)
+  (mutate (busy? $) &container-busy))
 
-def-action container-step:
-   true-false-choice [any child is busy?] | [any child has inputs pending]:
-       True: for-all $c = .children $c.step
-       False: 
-           $m = .inputq.dequeue
-           for-all $cn = .connections:
-               [deliver message $m using connection $cn]
+(defun container-busy? ($)
+  (cond
+    ((or (any child is busy? $) 
+	 (any child has inputs pending $))
+     #true)
+    (t #false)))
 
-def-action deliver-up ((m : Output-Message)):
-   dest = .receiver
-   dest/enqueue-output (dest m.datum)
-def-action deliver-down ((m : Input-Message)):
-   dest = .receiver
-   dest/enqueue-input (dest m.datum)
-def-action deliver-across ((m : Output-Message)):
-   dest = .receiver
-   dest/enqueue-input (dest m.datum)
-def-action deliver-through ((m : Input-Message)):
-   dest = .receiver
-   dest/enqueue-output (dest m.datum)
-   
+(defun container-step ($)
+  (cond
+    ((or (any child is busy? $) 
+	 (any child has inputs pending $))
+     (step all children $))
+    (t (mutate $m (pop $))
+       (for every connection deliver message $m))))
+
+(defun deliver-up ($ m)
+  (enqueue-output (slot receiver $) (slot datum m)))
+
+(defun deliver-down ($ m)
+  (enqeue-input (slot receiver $) (slot datum m)))
+
+(defun deliver-across ($ m)
+  (enqeue-input (slot receiver $) (slot datum m)))
+
+(defun deliver-through ($ m)
+  (enqueue-output (slot receiver $) (slot datum m)))
+
+(defun leaf-step ($)
+  (mutate $m (pop $))
+  (send $ "stdout" (slot datum $)))
