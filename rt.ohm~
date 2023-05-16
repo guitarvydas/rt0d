@@ -1,0 +1,7 @@
+rt {
+  tokens = (token | separator)+
+  token = tokenChar+
+  tokenChar = ~separator any
+  separator = spacerun | "(" | ")"
+  spacerun = space+
+}

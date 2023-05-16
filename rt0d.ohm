@@ -1,0 +1,105 @@
+rt0d {
+  rt = def+
+  def = defstruct | defun
+  
+  defstruct = "(" ws "defstruct" ws name ws field+ ")" ws
+  defun = "(" ws "defun" ws name ws formals ws body ws ")" ws
+  
+  field = "(" ws name ws type ws fieldInitializer ws ")" ws
+  
+  slot = "(" ws "slot" ws name ws "$" ws ")" ws
+  mutate = "(" ws "mutate" ws (slot | "$") mutationSource ws ")" ws
+
+  type =
+    | "(" ws "Action" ws inputTypes ws outputTypes ws ")" ws -- action
+    | "(" ws "Attribute" ws outputTypes ws ")" ws -- attribute
+    | "(" ws "Predicate" ws ")" ws -- predicate
+    | "(" ws name ")" ws -- userDefined
+
+  inputTypes = "(" inputType* ")"
+  inputType =
+    | type
+    | kwasterisk 
+    | name
+    
+  outputTypes = "(" outputType* ")"
+  outputType =
+    | type
+    | kwasterisk 
+    | name
+    
+  formals = "(" ws name* ")" ws
+  
+  fieldInitializer = 
+    | "#undefined" -- undefined
+    | "-" -- elsewhere
+
+  mutationSource =
+    | slot -- slot
+    | name -- name
+
+  keyword = kwdefstruct | kwdefun | kwslot | kwmutate | undefined | specialChar | kwdefscope | kwcond | kwor
+  specialChar = self | "(" | ")" | "_" | "%"
+  self = "$" ~alnum
+  undefined = "#undefined"
+  kwor = "or" ~alnum
+  kwdefscope = "defscope" ~alnum
+  kwcond = "cond" ~alnum
+  kwdefstruct = "defstruct" ~alnum
+  kwdefun = "defun" ~alnum
+  kwslot = "slot" ~alnum
+  kwmutate = "mutate" ~alnum
+  name = namechar+
+  namechar = ~space ~specialChar any
+  builtinType = btype ~alnum ~specialChar
+  btype = "Action" | "Attribute" | "Predicate" | "Procedure" | "*" | "String"
+
+  ws = space*
+
+  body =
+    | condExpression
+    | slot
+    | mutate
+    | scopeDefinition
+    | phraseCall
+    | functionCall
+
+  source =
+    | tempVariableReference
+    | parameterReference
+    | self
+
+  scopeDefinition = "(" ws "defscope" ws tempVariable ws body ws ")" ws
+
+  parameterDefinition = "(" parameter* ")"
+  parameterReference = parameter
+  parameter =
+    | "$" ws -- self
+    | "%" name ws -- name
+
+  tempVariableReference = tempVariable
+
+  tempVariable = "_" name
+
+  phraseCall =
+    | "(" ws "any" ws "child" ws "is" ws "busy?" ws "$" ws ")" ws -- anyChildBusy
+    | "(" ws "any" ws "child" ws "has" ws "inputs" ws "pending" ws "$" ws ")" ws -- anyChildHasInputs
+    | "(" ws "for" ws "every" ws "connection" ws "deliver" ws "message" ws "$" ws tempVariable ws ")" -- forEveryConnection
+
+  functionCall = "(" name ws actual? ")" ws
+
+  actual =
+    | slot ws -- slot
+    | self ws -- self
+
+
+  condExpression = "(" ws kwcond guardedBody ws ")"
+  guardedBody = "(" guard body ")"
+  guard =
+    | "*" -- else
+    | expr -- expr
+
+  expr =
+    | "(" ws "or" ws expr+ ")" ws -- or
+    | body ws -- expr
+}

@@ -1,0 +1,9 @@
+rt0d {
+  name = namechar+
+  namechar = ~space ~self any
+  self = "$" ~alnum
+  undefined = "#undefined"
+  special = self | undefined
+  builtintype = btype ~alnum ~special
+builtintype = "Action" | "Attribute" | "Predicate" | "Procedure" | "*"
+}

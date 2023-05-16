@@ -1,0 +1,10 @@
+rt {
+  tokens = atom+
+  atom = 
+     | separator -- separator
+     | token -- token
+  token = tokenChar+
+  tokenChar = ~separator any
+  separator = spacerun | "(" | ")"
+  spacerun = space+
+}

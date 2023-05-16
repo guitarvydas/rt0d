@@ -1,0 +1,10 @@
+rt {
+  tokens [atom+] = ‛«atom»’
+  atom_separator [sep] = ‛«sep»’
+  atom_token [tok] = ‛«tok»~’
+
+  token [cs+] = ‛«cs»’
+  tokenChar [c] = ‛«c»’
+  separator [c]=  ‛«c»’
+  spacerun [cs+] = ‛ ’
+}

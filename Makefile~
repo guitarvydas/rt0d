@@ -1,0 +1,4 @@
+all: tokens
+
+tokens: 0d.rt
+	./fab/fab tokens.ohm tokens.fab support.js <0d.rt
