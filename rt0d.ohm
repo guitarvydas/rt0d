@@ -1,66 +1,62 @@
 rt0d {
   RT0D = Def+
-  Def = Defstruct | Defun
+  Def = Defstruct | Definit | Defm
   
   Defstruct = "(" "defstruct" br name Field+ ")"
-  Defun = "(" "defun" br name Formals Body ")"
+  Definit = "(" "definit" br name Formals Body ")"
+  Defm = "(" "defm" br name Formals Body ")"
   
-  Field = "(" name Type FieldInitializer ")"
+  Field = "(" name FieldType FieldInitializer ")"
   
   Slot = "(" "slot" br name br self ")"
-  Mutate = "(" "mutate" (Slot | self) MutationSource ")"
+  Mutate = "(" "mutate" MutationDest MutationSource ")"
 
+  FieldType = "(" Type ")"
+  
   Type =
-    | "(" "Action" InputTypes OutputTypes ")" -- action
-    | "(" "Attribute" OutputTypes ")" -- attribute
-    | "(" "Predicate" ")" -- predicate
-    | "(" name ")" -- userDefined
+    | "Action" InputTypes OutputTypes -- action
+    | "Attribute" OutputTypes -- attribute
+    | "Predicate" InputTypes -- predicate
+    | "*" -- any
+    | name -- userDefined
 
-  InputTypes = "(" InputType* ")"
-  InputType =
-    | Type
-    | "*"
-    | name
+  InputTypes = "(" Ty* ")"
+  OutputTypes = "(" Ty* ")"
+  Ty = Type br?
     
-  OutputTypes = "(" OutputType* ")"
-  OutputType =
-    | Type
-    | "*"
-    | name
-    
-  Formals = "(" (name br?)* ")"
+  Formals = "(" ParameterDeclarations? ")"
   
   FieldInitializer = 
     | "#undefined" -- undefined
     | "-" -- elsewhere
 
-  MutationSource =
-    | Slot -- slot
-    | name -- name
+  MutationDest = self | Slot | tempVariableReference
+  MutationSource = Source
 
-  Body =
+  Body = ( EmptyBody | Mutate | BodyExpr)+
+  BodyExpr =
     | CondExpression
-    | Slot
-    | Mutate
     | ScopeDefinition
-    | PhraseCall
-    | FunctionCall
+    | Source
 
   Source =
+    | Slot
+    | PhraseCall
+    | FunctionCall
     | tempVariableReference
     | parameterReference
     | self
 
   ScopeDefinition = "(" "defscope" br tempVariable Body ")"
 
-  parameterDefinition = "(" (parameter br?)* ")"
-  parameterReference = parameter
-  parameter =
-    | self -- self
+  ParameterDeclarations =
+     | "%" name br ParameterDeclarations -- namebr
+     | "%" name                          -- name
+    
+  parameterReference = 
     | "%" name -- name
 
   tempVariableReference = tempVariable
-
   tempVariable = "_" name
 
   PhraseCall =
@@ -68,15 +64,16 @@ rt0d {
     | "(" "any" br "child" br "has" br "inputs" br "pending" br self ")" -- anyChildHasInputs
     | "(" "for" br "every" br "connection" br "deliver" br "message" br self br tempVariable ")" -- forEveryConnection
 
-  FunctionCall = "(" name Actual? ")"
+  FunctionCall = "(" name Actual* ")"
 
   Actual =
     | br Slot -- slot
     | br self -- self
-
+    | br parameterReference -- parameter
+    | br tempVariableReference -- tempVariable
 
   CondExpression = "(" "cond" GuardedBody ")"
-  GuardedBody = "("Guard Body ")"
+  GuardedBody = "(" Guard Body ")"
   Guard =
     | "*" -- else
     | Expr -- expr
@@ -84,9 +81,18 @@ rt0d {
   Expr =
     | "(" "or" Expr+ ")" -- or
     | Body -- expr
+    | localVariable
 
+
+  EmptyBody = "(" ")"
+
+  localVariable =
+    | parameterReference
+    | tempVariableReference
+    | self
+    
   name = nameChar+
-  nameChar = ~space ~br any
+  nameChar = ~space ~br ~"(" ~")" any
   br = space* "∘" space*
 
   self = "$"

@@ -3,75 +3,75 @@
   (dequeue (Attribute (Message)) -)
   (push (Action (Message) ()) -)
   (clear (Action () ()) -)
-  (empty? (Predicate ())) -)
-(defun ∘ FIFO/new ())
+  (empty? (Predicate ()) -))
+(definit ∘ FIFO/new ()())
 
 (defstruct ∘ Message
   (port (Attribute (String)) #undefined)
   (datum (Attribute (*)) #undefined))
-(defun ∘ Message/new (p ∘ d) 
-  (mutate (slot ∘ port ∘ $) p) 
-  (mutate (slot ∘ datum ∘ $) d))
+(definit ∘ Message/new (%p ∘ %d) 
+  (mutate (slot ∘ port ∘ $) %p) 
+  (mutate (slot ∘ datum ∘ $) %d))
 
 (defstruct ∘ Input-Message
   (port (Attribute (String)) #undefined)
   (datum (Attribute (*)) #undefined))
-(defun ∘ Input-Message/new (p ∘ d) (Message/new ∘ p ∘ d))
+(definit ∘ Input-Message/new (%p ∘ %d) (Message/new ∘ %p ∘ %d))
 
 (defstruct ∘ Output-Message
   (port (Attribute (String)) #undefined)
   (datum (Attribute (*)) #undefined))
-(defun ∘ Output-Message/new (p ∘ d) (Message/new ∘ p ∘ d))
+(definit ∘ Output-Message/new (%p ∘ %d) (Message/new ∘ %p ∘ %d))
 
 (defstruct ∘ Sender
   (component (Component) #undefined)
   (port (String) #undefined))
-(defun ∘ Sender/new (C ∘ P) 
-  (mutate (slot ∘ component ∘ $) C)
-  (mutate (slot ∘ port ∘ $) P))
+(definit ∘ Sender/new (%C ∘ %P) 
+  (mutate (slot ∘ component ∘ $) %C)
+  (mutate (slot ∘ port ∘ $) %P))
 
 (defstruct ∘ Receiver
   (component (Component) #undefined)
   (port (String) #undefined))
-(defun ∘ Receiver/new (C ∘ P) 
-  (mutate (slot ∘ component ∘ $) C)
-  (mutate (slot ∘ port ∘ $) P))
+(definit ∘ Receiver/new (%C ∘ %P) 
+  (mutate (slot ∘ component ∘ $) %C)
+  (mutate (slot ∘ port ∘ $) %P))
 
 (defstruct ∘ Connection
   (sender (Sender) #undefined)
   (receiver (Receiver) #undefined)
   (deliver (Action (Output-Message) ()) #undefined))
-(defun ∘ Connection/new (S ∘ R)
-  (mutate (slot ∘ sender ∘ $) S)
-  (mutate (slot ∘ receiver ∘ $) S))
+(definit ∘ Connection/new (%S ∘ %R)
+  (mutate (slot ∘ sender ∘ $) %S)
+  (mutate (slot ∘ receiver ∘ $) %S))
 
 (defstruct ∘ Up
   (sender (Sender) #undefined)
   (receiver (Receiver) #undefined)
   (deliver (Action () (Output-Message)) #undefined))
-(defun ∘ Up/new (S ∘ R) 
-  (mutate ∘ $ (Connection/new ∘ S ∘ R))
+(definit ∘ Up/new (%S ∘ %R) 
+  (mutate ∘ $ (Connection/new ∘ %S ∘ %R))
   (mutate (slot ∘ deliver ∘ $) &deliver-up))
 (defstruct ∘ Down
   (sender (Sender) #undefined)
   (receiver (Receiver) #undefined)
   (deliver (Action () (Output-Message)) #undefined))
-(defun ∘ Down/new (S ∘ R) 
-  (mutate ∘ $ (Connection/new ∘ S ∘ R))
+(definit ∘ Down/new (%S ∘ %R) 
+  (mutate ∘ $ (Connection/new ∘ %S ∘ %R))
   (mutate (slot ∘ deliver ∘ $) &deliver-down))
 (defstruct ∘ Across
   (sender (Sender) #undefined)
   (receiver (Receiver) #undefined)
   (deliver (Action () (Output-Message)) #undefined))
-(defun ∘ Across/new (S ∘ R) 
-  (mutate ∘ $ (Connection/new ∘ S ∘ R))
+(definit ∘ Across/new (%S ∘ %R) 
+  (mutate ∘ $ (Connection/new ∘ %S ∘ %R))
   (mutate (slot ∘ deliver ∘ $) &deliver-across))
 (defstruct ∘ Through
   (sender (Sender) #undefined)
   (receiver (Receiver) #undefined)
   (deliver (Action () (Output-Message)) #undefined))
-(defun ∘ Through/new (S ∘ R) 
-  (mutate ∘ $ (Connection/new ∘ S ∘ R))
+(definit ∘ Through/new (%S ∘ %R) 
+  (mutate ∘ $ (Connection/new ∘ %S ∘ %R))
   (mutate (slot ∘ deliver ∘ $) &deliver-through))
 
 (defstruct ∘ Eh
@@ -91,41 +91,41 @@
   (send (Action (String ∘ *) ()) -)
   (outputs-as-list (Attribute (List (Output-Message))) -)
   (map-outputs (Action (Action (Output-Message) ()) ()) -))
-(defun ∘ Eh/new (N)
-  (mutate (slot ∘ name ∘ $) N)
+(definit ∘ Eh/new (%N)
+  (mutate (slot ∘ name ∘ $) %N)
   (mutate (slot ∘ inq ∘ $) (FIFO/new))
   (mutate (slot ∘ outq ∘ $) (FIFO/new)))
 
-(defstruct ∘ Leaf (N ∘ S)
+(defstruct ∘ Leaf (%N ∘ %S)
   (name (Attribute (String)) #undefined)
   (step (Action () ()) #undefined)
   (busy? (Predicate ()) #undefined))
-(defun ∘ Leaf/new (N ∘ S)
+(definit ∘ Leaf/new (%N ∘ %S)
   (mutate ∘ $ (Eh/new))
-  (mutate (slot ∘ name ∘ $) N)
-  (mutate (slot ∘ step ∘ $) S)
+  (mutate (slot ∘ name ∘ $) %N)
+  (mutate (slot ∘ step ∘ $) %S)
   (mutate (slot ∘ busy? ∘ $) #false))
 
-(defstruct ∘ Container (N ∘ S)
+(defstruct ∘ Container (%N ∘ %S)
   (name (Attribute (String)) #undefined)
   (step (Action () ()) #undefined)
   (busy? (Predicate ()) #undefined))
-(defun ∘ Container/new (N ∘ S)
+(definit ∘ Container/new (%N ∘ %S)
   (mutate ∘ $ (Eh/new))
-  (mutate (slot ∘ name ∘ $) N)
+  (mutate (slot ∘ name ∘ $) %N)
   (mutate (slot ∘ step ∘ $) &container-step)
   (mutate (slot ∘ busy? ∘ $) &container-busy))
 
 
 
-(defun ∘ container-busy? ($)
+(defm ∘ container-busy? ()
   (cond
     ((or (any ∘ child ∘ is ∘ busy? ∘ $) 
 	 (any ∘ child ∘ has ∘ inputs ∘ pending ∘ $))
      #true)
     (t ∘ #false)))
 
-(defun ∘ container-step ($)
+(defm ∘ container-step ()
   (cond
     ((or (any ∘ child ∘ is ∘ busy? ∘ $) 
 	 (any ∘ child ∘ has ∘ inputs ∘ pending ∘ $))
@@ -135,19 +135,20 @@
 	 (mutate ∘ _m (pop ∘ $))
 	 (for ∘ every ∘ connection ∘ deliver ∘ message ∘ $ ∘ _m)))))
 
-(defun ∘ deliver-up ($ ∘ %m)
+(defm ∘ deliver-up (%m)
   (enqueue-output (slot ∘ receiver ∘ $) (slot ∘ datum ∘ %m)))
 
-(defun ∘ deliver-down ($ ∘ %m)
+(defm ∘ deliver-down (%m)
   (enqeue-input (slot ∘ receiver ∘ $) (slot ∘ datum ∘ %m)))
 
-(defun ∘ deliver-across ($ ∘ %m)
+(defm ∘ deliver-across (%m)
   (enqeue-input (slot ∘ receiver ∘ $) (slot ∘ datum ∘ %m)))
 
-(defun ∘ deliver-through ($ ∘ %m)
+(defm ∘ deliver-through (%m)
   (enqueue-output (slot ∘ receiver ∘ $) (slot ∘ datum ∘ %m)))
 
-(defun ∘ leaf-step ($)
-  (mutate ∘ $m (pop ∘ $))
-  (send ∘ $ ∘ "stdout" (slot ∘ datum ∘ $)))
+(defm ∘ leaf-step ()
+  (defscope ∘ _m
+    (mutate ∘ _m (pop ∘ $))
+    (send ∘ $ ∘ "stdout" (slot ∘ datum ∘ _m))))
 
