@@ -1,10 +1,11 @@
 rt {
-  tokens [atom+] = ‛«atom»’
-  atom_separator [sep] = ‛«sep»’
-  atom_token [tok] = ‛«tok»~’
-
-  token [cs+] = ‛«cs»’
-  tokenChar [c] = ‛«c»’
-  separator [c]=  ‛«c»’
-  spacerun [cs+] = ‛ ’
+  tokens [items+] = ‛«items»’
+  lpar [s1* c s2*] = ‛«s1»«c»«s2»’
+  rpar [s1* c s2*] = ‛«s1»«c»«s2»’
+  newlines [s1* c+ s2*] = ‛«s1»«c»«s2»’
+  break [sp+] = ‛∘’
+  sep [x] = ‛«x»’
+  atom [cs+] = ‛«cs»’
+  atomChar [c] = ‛«c»’
+  sp [c] = ‛«c»’
 }

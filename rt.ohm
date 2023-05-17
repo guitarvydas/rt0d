@@ -1,10 +1,11 @@
 rt {
-  tokens = atom+
-  atom = 
-     | separator -- separator
-     | token -- token
-  token = tokenChar+
-  tokenChar = ~separator any
-  separator = spacerun | "(" | ")"
-  spacerun = space+
+  tokens = (lpar | rpar | newlines | break | atom)+
+  lpar = sp* "(" sp*
+  rpar = sp* ")" sp*
+  newlines = sp* "\n"+ sp*
+  break = sp+
+  sep = lpar | rpar | newlines | break
+  atom = atomChar+
+  atomChar = ~sep ~sp any
+  sp = " " | "\t"
 }
