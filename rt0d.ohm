@@ -2,10 +2,12 @@ rt0d {
   RT0D = Def+
   Def = Defstruct | Definit | Defm
   
-  Defstruct = "(" "defstruct" br name Field+ ")"
-  Definit = "(" "definit" br name Formals Body ")"
-  Defm = "(" "defm" br name Formals Body ")"
-  
+  Defstruct = "(" "defstruct" Defname Field+ ")"
+  Definit = "(" "definit" Defname Formals Body ")"
+  Defm = "(" "defm" Defname Formals Body ")"
+
+  Defname = br name
+
   Field = "(" name FieldType FieldInitializer ")"
   
   Slot = "(" "slot" br name br self ")"
