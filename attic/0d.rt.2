@@ -1,0 +1,100 @@
+# replace all synonyms
+
+def-proto FIFO:
+   enqueue : Action
+   dequeue : Attribute -> (Message)
+   push : Action (Message)
+   clear : Action
+   empty? : Predicate
+   
+def-proto Message:
+   port : String
+   datum : *
+
+def-kind Input-Message ~ Message:
+def-kind Output-Message ~ Message:
+
+def-proto Sender [C P]:
+   component : Component = C
+   port : String = P
+
+def-proto Receiver [C P]:
+   component : Component = C
+   port : String = P
+
+def-proto Connection [S R]:
+   sender : Sender = S
+   receiver : Receiver = R
+   deliver : Action (Output-Message)
+
+
+def-kind Up [S R] ~ Connection [S R]:
+   deliver :: Action (Output-Message) = &deliver-up
+def-kind Down [S R] ~ Connection [S R]:
+   deliver :: Action (Output-Message) = &deliver-down
+def-kind Across [S R] ~ Connection [S R]:
+   deliver :: Action (Output-Message) = &deliver-across
+def-kind Through [S R] ~ Connection [S R]:
+   deliver :: Action (Output-Message) = deliver-through
+   
+def-proto Eh [N]:
+   name : Attribute -> String = N
+   step : Action
+   busy? : Predicate
+   inq : FIFO
+   outq : FIFO
+   enqueue-input : Action (Input-Message)
+   dequeue-input : Procedure -> Input-Message
+   empty-input? : Predicate
+   output-queue : Attribute -> FIFO
+   enqueue-output : Action (Output-Message)
+   dequeue-output : Procdure -> Output-Message
+   empty-output? : Predicate
+   clear-outputs : Action
+   send : Action (String *)
+   outputs-as-list : Attribute -> List[Output-Message]
+   map-outputs : Action (Action (Output-Message))
+
+def-kind Leaf [N S]:
+   name :: Attribute -> String = N
+   step :: Action = S
+   busy? :: Predicate = False
+def-kind Container [N]:
+   name :: Attribute -> String = N
+   step :: Action = &container-step
+   busy? :: Predicate = &container-busy
+
+def-kind Component = Leaf | Container
+
+def-predicate container-busy?:
+   true-false-choice [any child is busy?] | [any child has inputs pending]:
+       True: True
+       False: False
+
+def-action container-step:
+   true-false-choice [any child is busy?] | [any child has inputs pending]:
+       True: [step all children]
+       False: 
+           pop $
+           [for every connection deliver message $]
+
+def-action deliver-up ((m : Output-Message)):
+   def-synonym dest ~ .receiver
+   dest/enqueue-output (dest m.datum)
+def-action deliver-down ((m : Input-Message)):
+   def-synonym dest ~ .receiver
+   dest/enqueue-input (dest m.datum)
+def-action deliver-across ((m : Output-Message)):
+   def-synonym dest ~ .receiver
+   dest/enqueue-input (dest m.datum)
+def-action deliver-through ((m : Input-Message)):
+   def-synonym dest ~ .receiver
+   dest/enqueue-output (dest m.datum)
+   
+
+
+---
+
+def-action leaf-step:
+    pop $
+    send ("stdout", $.datum)

@@ -1,105 +1,93 @@
 rt0d {
-  rt = def+
-  def = defstruct | defun
+  RT0D = Def+
+  Def = Defstruct | Defun
   
-  defstruct = "(" ws "defstruct" ws name ws field+ ")" ws
-  defun = "(" ws "defun" ws name ws formals ws body ws ")" ws
+  Defstruct = "(" "defstruct" br name Field+ ")"
+  Defun = "(" "defun" br name Formals Body ")"
   
-  field = "(" ws name ws type ws fieldInitializer ws ")" ws
+  Field = "(" name Type FieldInitializer ")"
   
-  slot = "(" ws "slot" ws name ws "$" ws ")" ws
-  mutate = "(" ws "mutate" ws (slot | "$") mutationSource ws ")" ws
+  Slot = "(" "slot" br name br self ")"
+  Mutate = "(" "mutate" (Slot | self) MutationSource ")"
 
-  type =
-    | "(" ws "Action" ws inputTypes ws outputTypes ws ")" ws -- action
-    | "(" ws "Attribute" ws outputTypes ws ")" ws -- attribute
-    | "(" ws "Predicate" ws ")" ws -- predicate
-    | "(" ws name ")" ws -- userDefined
+  Type =
+    | "(" "Action" InputTypes OutputTypes ")" -- action
+    | "(" "Attribute" OutputTypes ")" -- attribute
+    | "(" "Predicate" ")" -- predicate
+    | "(" name ")" -- userDefined
 
-  inputTypes = "(" inputType* ")"
-  inputType =
-    | type
-    | kwasterisk 
+  InputTypes = "(" InputType* ")"
+  InputType =
+    | Type
+    | "*"
     | name
     
-  outputTypes = "(" outputType* ")"
-  outputType =
-    | type
-    | kwasterisk 
+  OutputTypes = "(" OutputType* ")"
+  OutputType =
+    | Type
+    | "*"
     | name
     
-  formals = "(" ws name* ")" ws
+  Formals = "(" (name br?)* ")"
   
-  fieldInitializer = 
+  FieldInitializer = 
     | "#undefined" -- undefined
     | "-" -- elsewhere
 
-  mutationSource =
-    | slot -- slot
+  MutationSource =
+    | Slot -- slot
     | name -- name
 
-  keyword = kwdefstruct | kwdefun | kwslot | kwmutate | undefined | specialChar | kwdefscope | kwcond | kwor
-  specialChar = self | "(" | ")" | "_" | "%"
-  self = "$" ~alnum
-  undefined = "#undefined"
-  kwor = "or" ~alnum
-  kwdefscope = "defscope" ~alnum
-  kwcond = "cond" ~alnum
-  kwdefstruct = "defstruct" ~alnum
-  kwdefun = "defun" ~alnum
-  kwslot = "slot" ~alnum
-  kwmutate = "mutate" ~alnum
-  name = namechar+
-  namechar = ~space ~specialChar any
-  builtinType = btype ~alnum ~specialChar
-  btype = "Action" | "Attribute" | "Predicate" | "Procedure" | "*" | "String"
+  Body =
+    | CondExpression
+    | Slot
+    | Mutate
+    | ScopeDefinition
+    | PhraseCall
+    | FunctionCall
 
-  ws = space*
-
-  body =
-    | condExpression
-    | slot
-    | mutate
-    | scopeDefinition
-    | phraseCall
-    | functionCall
-
-  source =
+  Source =
     | tempVariableReference
     | parameterReference
     | self
 
-  scopeDefinition = "(" ws "defscope" ws tempVariable ws body ws ")" ws
+  ScopeDefinition = "(" "defscope" br tempVariable Body ")"
 
-  parameterDefinition = "(" parameter* ")"
+  parameterDefinition = "(" (parameter br?)* ")"
   parameterReference = parameter
   parameter =
-    | "$" ws -- self
-    | "%" name ws -- name
+    | self -- self
+    | "%" name -- name
 
   tempVariableReference = tempVariable
 
   tempVariable = "_" name
 
-  phraseCall =
-    | "(" ws "any" ws "child" ws "is" ws "busy?" ws "$" ws ")" ws -- anyChildBusy
-    | "(" ws "any" ws "child" ws "has" ws "inputs" ws "pending" ws "$" ws ")" ws -- anyChildHasInputs
-    | "(" ws "for" ws "every" ws "connection" ws "deliver" ws "message" ws "$" ws tempVariable ws ")" -- forEveryConnection
+  PhraseCall =
+    | "(" "any" br "child" br "is" br "busy?" br self ")" -- anyChildBusy
+    | "(" "any" br "child" br "has" br "inputs" br "pending" br self ")" -- anyChildHasInputs
+    | "(" "for" br "every" br "connection" br "deliver" br "message" br self br tempVariable ")" -- forEveryConnection
 
-  functionCall = "(" name ws actual? ")" ws
+  FunctionCall = "(" name Actual? ")"
 
-  actual =
-    | slot ws -- slot
-    | self ws -- self
+  Actual =
+    | br Slot -- slot
+    | br self -- self
 
 
-  condExpression = "(" ws kwcond guardedBody ws ")"
-  guardedBody = "(" guard body ")"
-  guard =
+  CondExpression = "(" "cond" GuardedBody ")"
+  GuardedBody = "("Guard Body ")"
+  Guard =
     | "*" -- else
-    | expr -- expr
+    | Expr -- expr
 
-  expr =
-    | "(" ws "or" ws expr+ ")" ws -- or
-    | body ws -- expr
+  Expr =
+    | "(" "or" Expr+ ")" -- or
+    | Body -- expr
+
+  name = nameChar+
+  nameChar = ~space ~br any
+  br = space* "∘" space*
+
+  self = "$"
 }

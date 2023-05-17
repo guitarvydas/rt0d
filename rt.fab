@@ -3,7 +3,7 @@ rt {
   lpar [s1* c s2*] = ‛«s1»«c»«s2»’
   rpar [s1* c s2*] = ‛«s1»«c»«s2»’
   newlines [s1* c+ s2*] = ‛«s1»«c»«s2»’
-  break [sp+] = ‛∘’
+  break [sp+] = ‛ ∘ ’
   sep [x] = ‛«x»’
   atom [cs+] = ‛«cs»’
   atomChar [c] = ‛«c»’
