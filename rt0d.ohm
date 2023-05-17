@@ -56,7 +56,7 @@ rt0d {
      | "%" namenobr                   -- singlename
     
   parameterReference = 
-    | "%" namenobr -- name
+    | "%" name -- name
 
   tempVariableReference = tempVariable
   tempVariable = "_" name
