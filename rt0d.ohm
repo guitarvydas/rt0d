@@ -10,7 +10,7 @@ rt0d {
 
   Field = "(" name FieldType FieldInitializer ")"
   
-  Slot = "(" "slot" br name br self ")"
+  Slot = "(" "slot" br name self ")"
   Mutate = "(" "mutate" MutationDest MutationSource ")"
 
   FieldType = "(" Type ")"
@@ -19,7 +19,7 @@ rt0d {
     | "Action" InputTypes OutputTypes -- action
     | "Attribute" OutputTypes -- attribute
     | "Predicate" InputTypes -- predicate
-    | "*" -- any
+    | "*" br? -- any
     | name -- userDefined
 
   InputTypes = "(" Ty* ")"
@@ -52,11 +52,11 @@ rt0d {
   ScopeDefinition = "(" "defscope" br tempVariable Body ")"
 
   ParameterDeclarations =
-     | "%" name br ParameterDeclarations -- namebr
-     | "%" name                          -- name
+     | "%" name ParameterDeclarations -- name
+     | "%" namenobr                   -- singlename
     
   parameterReference = 
-    | "%" name -- name
+    | "%" namenobr -- name
 
   tempVariableReference = tempVariable
   tempVariable = "_" name
@@ -69,10 +69,10 @@ rt0d {
   FunctionCall = "(" name Actual* ")"
 
   Actual =
-    | br Slot -- slot
-    | br self -- self
-    | br parameterReference -- parameter
-    | br tempVariableReference -- tempVariable
+    | Slot -- slot
+    | self -- self
+    | parameterReference -- parameter
+    | tempVariableReference -- tempVariable
 
   CondExpression = "(" "cond" GuardedBody ")"
   GuardedBody = "(" Guard Body ")"
@@ -93,7 +93,8 @@ rt0d {
     | tempVariableReference
     | self
     
-  name = nameChar+
+  name = nameChar+ br?
+  namenobr = nameChar+
   nameChar = ~space ~br ~"(" ~")" any
   br = space* "∘" space*
 
