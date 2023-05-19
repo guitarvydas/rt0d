@@ -25,7 +25,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "doc/2023-05-19-Working Paper rt0d.md",
                 "mode": "source",
                 "source": false
               }
@@ -98,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "README.md",
+                "file": "doc/2023-05-19-Working Paper rt0d.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -115,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "README.md",
+                "file": "doc/2023-05-19-Working Paper rt0d.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -138,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "README.md"
+                "file": "doc/2023-05-19-Working Paper rt0d.md"
               }
             }
           }
@@ -161,8 +161,10 @@
   },
   "active": "19ce56dcac9683a6",
   "lastOpenFiles": [
-    "doc/2023-05-19-Working Paper.md",
-    "doc",
-    "README.md"
+    "doc/2023-05-19-Working Paper rt0d 1.md",
+    "doc/2023-05-19-Working Paper rt0d.md",
+    "doc/#2023-05-19-Working Paper.md#",
+    "README.md",
+    "doc"
   ]
 }
