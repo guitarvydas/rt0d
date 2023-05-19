@@ -11,7 +11,7 @@ rt0d {
   Field = "(" name FieldType FieldInitializer ")"
   
   Slot = "(" "slot" br name self ")"
-  Mutate = "(" "mutate" MutationDest MutationSource ")"
+  Mutate = "(" "mutate" br? MutationDest MutationSource ")"
 
   FieldType = "(" Type ")"
   
@@ -47,6 +47,7 @@ rt0d {
     | FunctionCall
     | tempVariableReference
     | parameterReference
+    | procReference
     | self
 
   ScopeDefinition = "(" "defscope" br tempVariable Body ")"
@@ -57,6 +58,9 @@ rt0d {
     
   parameterReference = 
     | "%" name -- name
+
+  procReference = 
+    | "&" name -- name
 
   tempVariableReference = tempVariable
   tempVariable = "_" name
