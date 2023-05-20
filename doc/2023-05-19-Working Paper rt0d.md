@@ -171,5 +171,28 @@ N.B. all characters, except white-space, are valid id characters.  In this case 
 
 `Defsynonym` is a pseudo-code-only construct and is screened out in RT translations of the code.  `Defsynonym` does not appear in RT.
 
+---
 
+# May 20, 2023
+
+revelation? Each field of a *struct* contains a *function*.  In the case of Attributes, the function references / destructures a privately captured lump of mutable data.  A bit of local, persistent RAM.
+```
+(defstruct Message
+  (port (Attribute (String)) (lambda () (slot $ 'port)))
+  (datum (Attribute (*)) (lambda () (slot $ 'datum))))
+(definit Message/new (%p %d) 
+  (mutate (slot port $) %p) 
+  (mutate (slot datum $) %d))
+```
+So, *slot* is a reference to the captured data.
+
+So, `(mutate (slot port $) %p)` gets the effective address of the "port" variable in the captured data while `mutate` changes the location at that effective address.
+
+Q: should `mutate` be allowed to be used only in `definit`s, or, does it need to be generalized to be available elsewhere?  Are there 2 kinds of `mutate`, one for use only in `definit` and one for more general use?  Does this difference make it easier for the optimizer?
+
+So, to the outside world, access to a field is *always* a function call.  Some functions are allowed to use special operations to dig deeper, but those operations are encased inside a function as far as the outside world can tell.
+
+Normalization.  One way to do anything --> simplicity, ease-of-automation.
+
+Context-dependent operations.  The outside world sees only one thing - a callable function, the function, though, has access to operations that cannot be accessed by the outside world.
 
