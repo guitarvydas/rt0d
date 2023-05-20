@@ -196,3 +196,15 @@ Normalization.  One way to do anything --> simplicity, ease-of-automation.
 
 Context-dependent operations.  The outside world sees only one thing - a callable function, the function, though, has access to operations that cannot be accessed by the outside world.
 
+---
+
+# Appendix - Abridged Version
+
+# Working Paper rt0D
+..."Computer" is a Misnomer, "Function" is a Misnomer, "CPU" is a Misnomer, Mathematics Notation, Verbatim, How?...
+
+The ultimate goal is to enable the use of diagrams as syntax (DaS).  This is but a step in that direction.
+
+... "RT" is like assembler with a recursive syntax, instead of a line-oriented syntax ...
+
+The rest of the note is at https://github.com/guitarvydas/rt0d/blob/main/doc/2023-05-19-Working%20Paper%20rt0d.md
