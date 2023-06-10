@@ -13,7 +13,7 @@ I think that the current crop of programming languages, like Rust, Python, etc.,
 
 I see compiling this stuff to some existing languages, like Python, Rust, etc. as a 2-stage process
 1. transpile the pseudo-code into RT ("Recursive Text" base syntax)
-2. transpile the RT-for-0D into some existing language like Python, Rust, etc.
+2. transpile the RT into some existing language like Python, Rust, etc.
 
 "RT" is like assembler with a recursive syntax, instead of a line-oriented syntax.
 
