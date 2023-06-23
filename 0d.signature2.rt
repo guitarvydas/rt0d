@@ -1,0 +1,26 @@
+;;; signatures
+(defstruct/signatures Datum
+    (ptr (Attribute (rawptr)) .)
+    (len (Attribute (int)) .)
+    (clone (Action (($ Datum)) (Datum)) .)
+    (reclaim (Action (($ Datum)) ()) .)
+    (repr (Action (($ Datum)) (string)) .)
+    (reflection (Action (($ Datum)) (string)) .)
+)
+;;;;;;;
+
+(defm.signature clone_datum () (Datum))
+(defm reclaim_datum () ())
+
+(defm @ copy (rawptr int) ())
+(defm @ clone_reflection (rawptr) ())
+(defm @ free (rawptr int) ())
+
+(handle rawptr)
+(handle int)
+(handle string)
+(handle bytes)
+
+(@ datum_to_string () (string))
+(@ str (string) (Datum))
+(@ datum_to_bytes () (bytes))

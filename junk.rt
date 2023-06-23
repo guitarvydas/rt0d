@@ -1,0 +1,43 @@
+
+
+
+
+(defstruct Datum
+    (ptr (Attribute (rawptr)) .)
+    (len (Attribute (int)) .)
+    (clone (Action (Datum) (Datum)) -)
+    (reclaim (Action (Datum) ()) -)
+    (repr (Action (Datum) (string)) -)
+    (reflection (Action (Datum) (string)) -)
+)
+
+(defm clone_datum ()
+  (defscope _d
+      (mutate _d (new Datum)
+      (mutate (slot _d new_ptr) (slot $ ptr))
+...
+      _d
+      ))
+clone_datum :: proc () {
+    d := new (Datum)
+    new_ptr, _ := mem.alloc ($.len)
+    mem.copy (new_ptr, $.ptr, $.len)
+    d.ptr = new_ptr
+    d.len =$.len
+    d.clone = &clone_datum
+    d.reclaim = &reclaim_datum
+    d.repr = $.repr
+    d.reflection = strings.clone ($.reflection)
+    return d^
+clone_datum :: proc (self: Datum) -> Datum {
+    d := new (Datum)
+    new_ptr, _ := mem.alloc (self.len)
+    mem.copy (new_ptr, self.ptr, self.len)
+    d.ptr = new_ptr
+    d.len = self.len
+    d.clone = clone_datum
+    d.reclaim = reclaim_datum
+    d.repr = self.repr
+    d.reflection = strings.clone (self.reflection)
+    return d^
+}

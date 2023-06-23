@@ -1,0 +1,11 @@
+;;; signatures
+(defstruct/signatures Datum
+    (ptr (Attribute (rawptr)) .)
+    (len (Attribute (int)) .)
+    (clone (Action (($ Datum)) (Datum)) .)
+    (reclaim (Action (($ Datum)) ()) .)
+    (repr (Action (($ Datum)) (string)) .)
+    (reflection (Action (($ Datum)) (string)) .)
+)
+;;;;;;;
+
