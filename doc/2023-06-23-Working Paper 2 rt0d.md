@@ -40,3 +40,38 @@ means call external procedure `free` with 2 inputs and 0 outputs
 
 `(reclaim_reflection)`
 means call internal procedure `reclaim_reflection` with 0 inputs and 0 outputs (self `$` is always supplied as an implicit arg
+
+---
+
+Construct Descriptor
+- name
+- signature
+- where implemented
+
+defstruct vs. defoperand
+- defstruct defines a shape, but is not exported (like a "virtual" - must in sub-classed)
+- defoperand defines a struct object that is exported, like defstruct
+
+`@`
+`%`
+`$`
+`_`
+`~`
+`#Attribute`
+`#Action`
+`#Predicate`
+`#Filter`
+`#handle`
+`#defoperand`
+`#defstruct`
+`#definstantiate`
+`#defm`
+`#any`
+`[]`
+`^`
+`letter alnum*`
+
+## Struct
+A `struct` is an array of pointers to functions.  Plus a hunk of private memory that can only be accessed by the functions.
+
+This is very much like an Object, except that Attributes are functions.  The notion of getters and setters is very similar to this idea.

@@ -1,0 +1,42 @@
+;;; signatures
+(defstruct/implementation Datum
+    (ptr .)
+    (len .)
+    (clone .)
+    (reclaim .)
+    (repr .)
+    (reflection .))
+
+(defm/implementation @ clone_datum @)
+(defm/implementation @ reclaim_datum @)
+
+(defm/implementation @ copy @)
+(defm/implementation @ clone_reflection (@)
+(defm/implementation @ free @)
+
+(handle rawptr)
+(handle int)
+(handle string)
+(handle bytes)
+
+(defm/implementation @ datum_to_string @)
+(defm/implementation @ str @)
+(defm/implementation @ datum_to_bytes @)
+
+
+(defstruct/implementation Eh
+    (name .)
+    (input .)
+    (output .)
+    (yield .)
+    (data  .)
+    (children .)
+    (connections .)
+    (handler @)
+    (state .))
+
+(defstruct/implementation Message
+    (port .)
+    (datum .))
+
+

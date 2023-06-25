@@ -1,26 +1,49 @@
 ;;; signatures
-(defstruct/signatures Datum
-    (ptr (Attribute (rawptr)) .)
-    (len (Attribute (int)) .)
-    (clone (Action (($ Datum)) (Datum)) .)
-    (reclaim (Action (($ Datum)) ()) .)
-    (repr (Action (($ Datum)) (string)) .)
-    (reflection (Action (($ Datum)) (string)) .)
+(#defoperand/signature Datum
+    (ptr (#Attribute (rawptr)))
+    (len (#Attribute (int)))
+    (clone (#Action (()) (Datum)))
+    (reclaim (#Action (()) ()))
+    (repr (#Action (()) (string)))
+    (reflection (#Action (()) (string)))
 )
-;;;;;;;
+(#definstantiate/signature Datum/new ((%p rawptr) (%len int) (%rep (#Action () (string))) (%refl (#Operand))))
 
-(defm.signature clone_datum () (Datum))
-(defm reclaim_datum () ())
+(#defm/signature @ clone_datum () (Datum))
+(#defm/signature @ reclaim_datum () ())
 
-(defm @ copy (rawptr int) ())
-(defm @ clone_reflection (rawptr) ())
-(defm @ free (rawptr int) ())
+(#defm/signature @ copy (rawptr int) ())
+(#defm/signature @ clone_reflection (rawptr) ())
+(#defm/signature @ free (rawptr int) ())
 
-(handle rawptr)
-(handle int)
-(handle string)
-(handle bytes)
+(#handle rawptr)
+(#handle int)
+(#handle string)
+(#handle bytes)
 
-(@ datum_to_string () (string))
-(@ str (string) (Datum))
-(@ datum_to_bytes () (bytes))
+(#defm/signature @ datum_to_string () (string))
+(#defm/signature @ str (string) (Datum))
+(#defm/signature @ datum_to_bytes () (bytes))
+
+
+(#defstruct/signature Eh
+    (name (#Attribute (string)))
+    (input (#Attribute (FIFO)))
+    (output (#Attribute (FIFO)))
+    (yield (Attribtute (FIFO)))
+    (data  (#Attribute ((^#any))))   // this should be a Union: a Leaf has (instance) data, while a Container  
+    (children (#Attribute (([]^Eh)))) // has instance data, too, but the shape is predefined to be "children" and
+    (connections (#Attribute (([]Connector))))  // "connections"
+    (handler (#Action ((^Eh) Message (^#any)) ()) @)
+    (state (#Attribute (int))))
+
+
+(#defoperand/signature Message
+    (port (#Attribute (string)))
+    (datum (#Attribute (Datum))))
+
+
+(#definstantiate/signature Container/new  ((%name string) (%handler (#Action ((^Eh) Message (^#any)) ()))))
+(#definstantiate/signature Leaf/new  ((%name string) (%handler (#Action ((^Eh) Message (^#any)) ()))))
+(#definstantiate Message/new ((port Datum) (data Datum)) (Message))
+(#defm Message_From_String/new ((port_as_string string) (data Datum)) (Message))

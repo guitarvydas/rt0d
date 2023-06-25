@@ -1,0 +1,37 @@
+;;; signatures
+(defstruct/implementation Datum
+    (ptr .)
+    (len .)
+    (clone .)
+    (reclaim .)
+    (repr .)
+    (reflection .))
+
+(defm/implementation clone_datum () (Datum))
+(defm/implementation reclaim_datum () ())
+
+(defm/implementation @ copy (rawptr int) ())
+(defm/implementation @ clone_reflection (rawptr) ())
+(defm/implementation @ free (rawptr int) ())
+
+(handle rawptr)
+(handle int)
+(handle string)
+(handle bytes)
+
+(@/implementation datum_to_string () (string))
+(@/implementation str (string) (Datum))
+(@/implementation datum_to_bytes () (bytes))
+
+
+(defstruct/signaure Eh
+    (name (Attribute (string)) .)
+    (input (Attribute (FIFO)) .)
+    (output (Attribute (FIFO)) .)
+    (yield (Attribtute (FIFO)) .)
+    (data  (Attribute (^any)) .)   // this should be a Union: a Leaf has (instance) data, while a Container  
+    (children (Attribute ([]^Eh)) .) // has instance data, too, but the shape is predefined to be "children" and
+    (connections (Attribute ([]Connector)) .)  // "connections"
+    (handler (Action (^Eh Message ^any) ()) *)
+    (state (Attribute (int)) .))
+
